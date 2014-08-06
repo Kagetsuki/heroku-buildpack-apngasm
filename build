@@ -1,0 +1,27 @@
+#!/bin/sh
+
+workspace_dir=$1
+output_dir=$2
+
+git clone https://github.com/Kitware/CMake.git
+cd CMake
+./configure --prefix=$output_dir
+make
+make install
+cd ..
+
+curl -L -0 http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2 | tar -jx
+cd boost_1_55_0
+./bootstrap.sh
+./b2 install -j2 --prefix=$output_dir
+cd ..
+
+git clone https://github.com/apngasm/apngasm.git
+cd apngasm
+mkdir build
+cd build
+export CMAKE_LIBRARY_PATH="$output_dir/lib:$CMAKE_LIBRARY_PATH"
+export CMAKE_INCLUDE_PATH="$output_dir/include:$CMAKE_INCLUDE_PATH"
+../../CMake/bin/cmake -DCMAKE_INSTALL_PREFIX:PATH=$output_dir ..
+make
+make install
